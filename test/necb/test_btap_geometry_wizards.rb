@@ -28,7 +28,7 @@ class TestBTAPGeometryWizards < MiniTest::Test
                                                             initial_height = 0.0)
 
             # Dump model
-            # BTAP::FileIO::save_osm(model, File.join(File.dirname(__FILE__), "../local_test_output", "test_rectangle.osm"))
+            BTAP::FileIO::save_osm(model, File.join(File.dirname(__FILE__), "../local_test_output", "test_rectangle.osm"))
 
             # Test the model is correctly defined.
             # Floor area.
@@ -78,7 +78,7 @@ class TestBTAPGeometryWizards < MiniTest::Test
                 ground_area += surface.netArea if surface.outsideBoundaryCondition == "Ground"
               end
             end
-            correct_ground_area = (length * width + 3.8 * (length + width) * 2 * underground_storys).round(2)
+            correct_ground_area = (length * width + 3.8 * (length + width) * 2 * underground_storys).round(1)
             msg = "total ground area for case: #{caseDescription}"
             assert_in_delta(correct_ground_area, ground_area.round(2), 0.1, msg)
 
@@ -110,7 +110,7 @@ class TestBTAPGeometryWizards < MiniTest::Test
                                                           perimeter_zone_depth = 1.0)
 
           # Dump model
-          # BTAP::FileIO::save_osm(model, File.join(File.dirname(__FILE__), "../local_test_output", "test_courtyard.osm"))
+          BTAP::FileIO::save_osm(model, File.join(File.dirname(__FILE__), "../local_test_output", "test_courtyard.osm"))
 
           # Test the model is correctly defined.
           # Floor area.
@@ -191,7 +191,7 @@ class TestBTAPGeometryWizards < MiniTest::Test
                                                   plenum_height = 1.0,
                                                   perimeter_zone_depth = 4.57)
           # Dump model
-          # BTAP::FileIO::save_osm(model, File.join(File.dirname(__FILE__), "../local_test_output", "Lshape.osm"))
+          BTAP::FileIO::save_osm(model, File.join(File.dirname(__FILE__), "../local_test_output", "Lshape.osm"))
 
           # Test the model is correctly defined.
           # Floor area.
@@ -212,8 +212,8 @@ class TestBTAPGeometryWizards < MiniTest::Test
           end
           correct_ext_wall_area = (3.8 * (length + width) * 2 * storys).round(2)
           msg = "total exterior wall area for case: #{caseDescription}"
-          assert_in_delta(correct_ext_wall_area, ext_wall_area.round(2), 0.1, msg + "(1)")
-          assert_in_delta(correct_ext_wall_area, model.getBuilding.exteriorWallArea.to_f.round(2), 0.1, msg + "(2)")
+          assert_in_delta(correct_ext_wall_area, ext_wall_area.round(2), 0.1, 'total exterior wall area (1)')
+          assert_in_delta(correct_ext_wall_area, model.getBuilding.exteriorWallArea.to_f.round(2), 0.1, 'total exterior wall area (2)')
 
           # Get the roof surfaces and check boundary conditions and areas.
           roofs = model.getBuilding.roofs
@@ -228,7 +228,8 @@ class TestBTAPGeometryWizards < MiniTest::Test
           end
           correct_roof_area = (length * width * 5.0 / 9.0).round(2)
           msg = "total roof area for case: #{caseDescription}"
-          assert_in_delta(correct_roof_area, roof_area.round(2), 0.1, msg)
+          assert_in_delta(correct_roof_area, roof_area.round(2), 0.1, 'total roof area')
+          assert_in_delta(correct_ext_wall_area + correct_roof_area, model.getBuilding.exteriorSurfaceArea.to_f.round(2), 0.1, 'total exterior surface area')
 
           # Total exterior area.
           msg = "total exterior surface area for case: #{caseDescription}"
@@ -275,7 +276,7 @@ class TestBTAPGeometryWizards < MiniTest::Test
 
 
             # Dump model
-            # BTAP::FileIO::save_osm(model, File.join(File.dirname(__FILE__), "../local_test_output", "Tshape.osm"))
+            BTAP::FileIO::save_osm(model, File.join(File.dirname(__FILE__), "../local_test_output", "Tshape.osm"))
 
             # Test the model is correctly defined.
             # Floor area.
@@ -361,7 +362,7 @@ class TestBTAPGeometryWizards < MiniTest::Test
                                                   perimeter_zone_depth = 0.2)
 
           # Dump model
-          # BTAP::FileIO::save_osm(model, File.join(File.dirname(__FILE__), "../local_test_output", "Hshape.osm"))
+          BTAP::FileIO::save_osm(model, File.join(File.dirname(__FILE__), "../local_test_output", "Hshape.osm"))
 
           # Test the model is correctly defined.
           # Floor area.
@@ -447,13 +448,13 @@ class TestBTAPGeometryWizards < MiniTest::Test
 
 
           # Dump model
-          # BTAP::FileIO::save_osm(model, File.join(File.dirname(__FILE__), "../local_test_output", "test_Ushape.osm"))
+          BTAP::FileIO::save_osm(model, File.join(File.dirname(__FILE__), "../local_test_output", "test_Ushape.osm"))
 
           # Test the model is correctly defined.
           # Floor area.
           correct_floor_area = (length * width * 7.0 / 9.0 * (storys)).round(2)
           msg = "floor area for case: #{caseDescription}"
-          assert_in_delta(correct_floor_area.to_f.round(2), model.getBuilding.floorArea.to_f.round(1), 0.1, msg)
+          assert_in_delta(correct_floor_area.to_f.round(2), model.getBuilding.floorArea.to_f.round(2), 0.1, msg)
 
           # Get the exterior walls and check boundary conditions and areas.
           extWalls = model.getBuilding.exteriorWalls
