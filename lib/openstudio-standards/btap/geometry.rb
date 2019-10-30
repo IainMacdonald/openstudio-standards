@@ -1629,10 +1629,8 @@ module BTAP
             #        runner.updateProgress(100*num_complete/num_total)
 
             north_core_polygon = OpenStudio::Point3dVector.new
-            north_core_polygon << perimeter_upper_sw_point
             north_core_polygon << perimeter_upper_nw_point
             north_core_polygon << perimeter_upper_ne_point
-            north_core_polygon << perimeter_upper_se_point
             north_core_polygon << perimeter_lower_nw_point
             north_core_polygon << perimeter_lower_ne_point
             north_core_space = OpenStudio::Model::Space::fromFloorPrint(north_core_polygon, floor_to_floor_height, model)
