@@ -87,7 +87,8 @@ class NRELZNEReady2017 < ASHRAE901
 
     # Unoccupied shutdown
     if air_loop_hvac_unoccupied_fan_shutoff_required?(air_loop_hvac)
-      air_loop_hvac_enable_unoccupied_fan_shutoff(air_loop_hvac)
+      occ_threshold = air_loop_hvac_unoccupied_threshold
+      air_loop_hvac_enable_unoccupied_fan_shutoff(air_loop_hvac, min_occ_pct = occ_threshold)
     else
       air_loop_hvac.setAvailabilitySchedule(air_loop_hvac.model.alwaysOnDiscreteSchedule)
     end
@@ -110,10 +111,10 @@ class NRELZNEReady2017 < ASHRAE901
 
   # Determine whether or not this system is required to have an economizer.
   #
-  # @param climate_zone [String] valid choices: 'ASHRAE 169-2006-1A', 'ASHRAE 169-2006-1B', 'ASHRAE 169-2006-2A', 'ASHRAE 169-2006-2B',
-  # 'ASHRAE 169-2006-3A', 'ASHRAE 169-2006-3B', 'ASHRAE 169-2006-3C', 'ASHRAE 169-2006-4A', 'ASHRAE 169-2006-4B', 'ASHRAE 169-2006-4C',
-  # 'ASHRAE 169-2006-5A', 'ASHRAE 169-2006-5B', 'ASHRAE 169-2006-5C', 'ASHRAE 169-2006-6A', 'ASHRAE 169-2006-6B', 'ASHRAE 169-2006-7A',
-  # 'ASHRAE 169-2006-7B', 'ASHRAE 169-2006-8A', 'ASHRAE 169-2006-8B'
+  # @param climate_zone [String] valid choices: 'ASHRAE 169-2013-1A', 'ASHRAE 169-2013-1B', 'ASHRAE 169-2013-2A', 'ASHRAE 169-2013-2B',
+  # 'ASHRAE 169-2013-3A', 'ASHRAE 169-2013-3B', 'ASHRAE 169-2013-3C', 'ASHRAE 169-2013-4A', 'ASHRAE 169-2013-4B', 'ASHRAE 169-2013-4C',
+  # 'ASHRAE 169-2013-5A', 'ASHRAE 169-2013-5B', 'ASHRAE 169-2013-5C', 'ASHRAE 169-2013-6A', 'ASHRAE 169-2013-6B', 'ASHRAE 169-2013-7A',
+  # 'ASHRAE 169-2013-7B', 'ASHRAE 169-2013-8A', 'ASHRAE 169-2013-8B'
   # @return [Bool] returns true if an economizer is required, false if not
   def air_loop_hvac_economizer_required?(air_loop_hvac, climate_zone)
     economizer_required = false
@@ -150,21 +151,36 @@ class NRELZNEReady2017 < ASHRAE901
     when 'FixedDryBulb'
       case climate_zone
       when 'ASHRAE 169-2006-1B',
-          'ASHRAE 169-2006-2B',
-          'ASHRAE 169-2006-3B',
-          'ASHRAE 169-2006-3C',
-          'ASHRAE 169-2006-4B',
-          'ASHRAE 169-2006-4C',
-          'ASHRAE 169-2006-5B',
-          'ASHRAE 169-2006-5C',
-          'ASHRAE 169-2006-6B',
-          'ASHRAE 169-2006-7A',
-          'ASHRAE 169-2006-7B',
-          'ASHRAE 169-2006-8A',
-          'ASHRAE 169-2006-8B'
+           'ASHRAE 169-2006-2B',
+           'ASHRAE 169-2006-3B',
+           'ASHRAE 169-2006-3C',
+           'ASHRAE 169-2006-4B',
+           'ASHRAE 169-2006-4C',
+           'ASHRAE 169-2006-5B',
+           'ASHRAE 169-2006-5C',
+           'ASHRAE 169-2006-6B',
+           'ASHRAE 169-2006-7A',
+           'ASHRAE 169-2006-7B',
+           'ASHRAE 169-2006-8A',
+           'ASHRAE 169-2006-8B',
+           'ASHRAE 169-2013-1B',
+           'ASHRAE 169-2013-2B',
+           'ASHRAE 169-2013-3B',
+           'ASHRAE 169-2013-3C',
+           'ASHRAE 169-2013-4B',
+           'ASHRAE 169-2013-4C',
+           'ASHRAE 169-2013-5B',
+           'ASHRAE 169-2013-5C',
+           'ASHRAE 169-2013-6B',
+           'ASHRAE 169-2013-7A',
+           'ASHRAE 169-2013-7B',
+           'ASHRAE 169-2013-8A',
+           'ASHRAE 169-2013-8B'
         drybulb_limit_f = 75.0
       when 'ASHRAE 169-2006-5A',
-          'ASHRAE 169-2006-6A'
+           'ASHRAE 169-2006-6A',
+           'ASHRAE 169-2013-5A',
+           'ASHRAE 169-2013-6A'
         drybulb_limit_f = 70.0
       end
     when 'FixedEnthalpy'
@@ -224,28 +240,44 @@ class NRELZNEReady2017 < ASHRAE901
     prohibited_types = []
     case climate_zone
     when 'ASHRAE 169-2006-1B',
-        'ASHRAE 169-2006-2B',
-        'ASHRAE 169-2006-3B',
-        'ASHRAE 169-2006-3C',
-        'ASHRAE 169-2006-4B',
-        'ASHRAE 169-2006-4C',
-        'ASHRAE 169-2006-5B',
-        'ASHRAE 169-2006-6B',
-        'ASHRAE 169-2006-7A',
-        'ASHRAE 169-2006-7B',
-        'ASHRAE 169-2006-8A',
-        'ASHRAE 169-2006-8B'
+         'ASHRAE 169-2006-2B',
+         'ASHRAE 169-2006-3B',
+         'ASHRAE 169-2006-3C',
+         'ASHRAE 169-2006-4B',
+         'ASHRAE 169-2006-4C',
+         'ASHRAE 169-2006-5B',
+         'ASHRAE 169-2006-6B',
+         'ASHRAE 169-2006-7A',
+         'ASHRAE 169-2006-7B',
+         'ASHRAE 169-2006-8A',
+         'ASHRAE 169-2006-8B',
+         'ASHRAE 169-2013-1B',
+         'ASHRAE 169-2013-2B',
+         'ASHRAE 169-2013-3B',
+         'ASHRAE 169-2013-3C',
+         'ASHRAE 169-2013-4B',
+         'ASHRAE 169-2013-4C',
+         'ASHRAE 169-2013-5B',
+         'ASHRAE 169-2013-6B',
+         'ASHRAE 169-2013-7A',
+         'ASHRAE 169-2013-7B',
+         'ASHRAE 169-2013-8A',
+         'ASHRAE 169-2013-8B'
       prohibited_types = ['FixedEnthalpy']
-    when
-      'ASHRAE 169-2006-1A',
-        'ASHRAE 169-2006-2A',
-        'ASHRAE 169-2006-3A',
-        'ASHRAE 169-2006-4A'
+    when 'ASHRAE 169-2006-1A',
+         'ASHRAE 169-2006-2A',
+         'ASHRAE 169-2006-3A',
+         'ASHRAE 169-2006-4A',
+         'ASHRAE 169-2013-1A',
+         'ASHRAE 169-2013-2A',
+         'ASHRAE 169-2013-3A',
+         'ASHRAE 169-2013-4A'
       prohibited_types = ['FixedDryBulb', 'DifferentialDryBulb']
-    when
-      'ASHRAE 169-2006-5A',
-        'ASHRAE 169-2006-6A',
-        prohibited_types = []
+    when 'ASHRAE 169-2006-5A',
+         'ASHRAE 169-2006-6A',
+         'ASHRAE 169-2013-5A',
+         'ASHRAE 169-2013-6A'
+      prohibited_types = []
     end
 
     # Check if the specified type is allowed
@@ -369,12 +401,19 @@ class NRELZNEReady2017 < ASHRAE901
   def air_loop_hvac_motorized_oa_damper_limits(air_loop_hvac, climate_zone)
     case climate_zone
     when 'ASHRAE 169-2006-1A',
-        'ASHRAE 169-2006-1B',
-        'ASHRAE 169-2006-2A',
-        'ASHRAE 169-2006-2B',
-        'ASHRAE 169-2006-3A',
-        'ASHRAE 169-2006-3B',
-        'ASHRAE 169-2006-3C',
+         'ASHRAE 169-2006-1B',
+         'ASHRAE 169-2006-2A',
+         'ASHRAE 169-2006-2B',
+         'ASHRAE 169-2006-3A',
+         'ASHRAE 169-2006-3B',
+         'ASHRAE 169-2006-3C',
+         'ASHRAE 169-2013-1A',
+         'ASHRAE 169-2013-1B',
+         'ASHRAE 169-2013-2A',
+         'ASHRAE 169-2013-2B',
+         'ASHRAE 169-2013-3A',
+         'ASHRAE 169-2013-3B',
+         'ASHRAE 169-2013-3C'
       minimum_oa_flow_cfm = 0
       maximum_stories = 999 # Any number of stories
     else
@@ -420,42 +459,60 @@ class NRELZNEReady2017 < ASHRAE901
 
     case climate_zone
     when 'ASHRAE 169-2006-1A',
-      'ASHRAE 169-2006-2A',
-      'ASHRAE 169-2006-3A'
+         'ASHRAE 169-2006-2A',
+         'ASHRAE 169-2006-3A',
+         'ASHRAE 169-2013-1A',
+         'ASHRAE 169-2013-2A',
+         'ASHRAE 169-2013-3A'
       OpenStudio.logFree(OpenStudio::Info, 'openstudio.standards.AirLoopHVAC', "For #{air_loop_hvac.name}: Supply air temperature reset is not required per 6.5.3.4 Exception 1, the system is located in climate zone #{climate_zone}.")
       return is_sat_reset_required
     when 'ASHRAE 169-2006-1B',
-      'ASHRAE 169-2006-2B',
-      'ASHRAE 169-2006-3B',
-      'ASHRAE 169-2006-3C',
-      'ASHRAE 169-2006-4A',
-      'ASHRAE 169-2006-4B',
-      'ASHRAE 169-2006-4C',
-      'ASHRAE 169-2006-5A',
-      'ASHRAE 169-2006-5B',
-      'ASHRAE 169-2006-5C',
-      'ASHRAE 169-2006-6A',
-      'ASHRAE 169-2006-6B',
-      'ASHRAE 169-2006-7A',
-      'ASHRAE 169-2006-7B',
-      'ASHRAE 169-2006-8A',
-      'ASHRAE 169-2006-8B'
+         'ASHRAE 169-2006-2B',
+         'ASHRAE 169-2006-3B',
+         'ASHRAE 169-2006-3C',
+         'ASHRAE 169-2006-4A',
+         'ASHRAE 169-2006-4B',
+         'ASHRAE 169-2006-4C',
+         'ASHRAE 169-2006-5A',
+         'ASHRAE 169-2006-5B',
+         'ASHRAE 169-2006-5C',
+         'ASHRAE 169-2006-6A',
+         'ASHRAE 169-2006-6B',
+         'ASHRAE 169-2006-7A',
+         'ASHRAE 169-2006-7B',
+         'ASHRAE 169-2006-8A',
+         'ASHRAE 169-2006-8B',
+         'ASHRAE 169-2013-1B',
+         'ASHRAE 169-2013-2B',
+         'ASHRAE 169-2013-3B',
+         'ASHRAE 169-2013-3C',
+         'ASHRAE 169-2013-4A',
+         'ASHRAE 169-2013-4B',
+         'ASHRAE 169-2013-4C',
+         'ASHRAE 169-2013-5A',
+         'ASHRAE 169-2013-5B',
+         'ASHRAE 169-2013-5C',
+         'ASHRAE 169-2013-6A',
+         'ASHRAE 169-2013-6B',
+         'ASHRAE 169-2013-7A',
+         'ASHRAE 169-2013-7B',
+         'ASHRAE 169-2013-8A',
+         'ASHRAE 169-2013-8B'
       is_sat_reset_required = true
       OpenStudio.logFree(OpenStudio::Info, 'openstudio.standards.AirLoopHVAC', "For #{air_loop_hvac.name}: Supply air temperature reset is required.")
       return is_sat_reset_required
     end
   end
 
+  # Default occupancy fraction threshold for determining if the spaces on the air loop are occupied
+  def air_loop_hvac_unoccupied_threshold
+    return 0.05
+  end
+
   # Determine if a motorized OA damper is required
   def air_loop_hvac_motorized_oa_damper_required?(air_loop_hvac, climate_zone)
     motorized_oa_damper_required = true
     return motorized_oa_damper_required
-  end
-
-  # Determines if optimum start control is required.
-  def air_loop_hvac_optimum_start_required?(air_loop_hvac)
-    opt_start_required = true
-    return opt_start_required
   end
 
   # Check if ERV is required on this airloop.
@@ -539,7 +596,16 @@ class NRELZNEReady2017 < ASHRAE901
     if ann_op_hrs < 8000.0
       # Table 6.5.6.1-1, less than 8000 hrs
       case climate_zone
-      when 'ASHRAE 169-2006-3B', 'ASHRAE 169-2006-3C', 'ASHRAE 169-2006-4B', 'ASHRAE 169-2006-4C', 'ASHRAE 169-2006-5B'
+      when 'ASHRAE 169-2006-3B',
+           'ASHRAE 169-2006-3C',
+           'ASHRAE 169-2006-4B',
+           'ASHRAE 169-2006-4C',
+           'ASHRAE 169-2006-5B',
+           'ASHRAE 169-2013-3B',
+           'ASHRAE 169-2013-3C',
+           'ASHRAE 169-2013-4B',
+           'ASHRAE 169-2013-4C',
+           'ASHRAE 169-2013-5B'
         if pct_oa < 0.1
           erv_cfm = nil
         elsif pct_oa >= 0.1 && pct_oa < 0.2
@@ -559,7 +625,12 @@ class NRELZNEReady2017 < ASHRAE901
         elsif pct_oa >= 0.8
           erv_cfm = nil
         end
-      when 'ASHRAE 169-2006-1B', 'ASHRAE 169-2006-2B', 'ASHRAE 169-2006-5C'
+      when 'ASHRAE 169-2006-1B',
+           'ASHRAE 169-2006-2B',
+           'ASHRAE 169-2006-5C',
+           'ASHRAE 169-2013-1B',
+           'ASHRAE 169-2013-2B',
+           'ASHRAE 169-2013-5C'
         if pct_oa < 0.1
           erv_cfm = nil
         elsif pct_oa >= 0.1 && pct_oa < 0.2
@@ -579,7 +650,8 @@ class NRELZNEReady2017 < ASHRAE901
         elsif pct_oa >= 0.8
           erv_cfm = 4000
         end
-      when 'ASHRAE 169-2006-6B'
+      when 'ASHRAE 169-2006-6B',
+           'ASHRAE 169-2013-6B'
         if pct_oa < 0.1
           erv_cfm = nil
         elsif pct_oa >= 0.1 && pct_oa < 0.2
@@ -599,7 +671,18 @@ class NRELZNEReady2017 < ASHRAE901
         elsif pct_oa >= 0.8
           erv_cfm = 1500
         end
-      when 'ASHRAE 169-2006-1A', 'ASHRAE 169-2006-2A', 'ASHRAE 169-2006-3A', 'ASHRAE 169-2006-4A', 'ASHRAE 169-2006-5A', 'ASHRAE 169-2006-6A'
+      when 'ASHRAE 169-2006-1A',
+           'ASHRAE 169-2006-2A',
+           'ASHRAE 169-2006-3A',
+           'ASHRAE 169-2006-4A',
+           'ASHRAE 169-2006-5A',
+           'ASHRAE 169-2006-6A',
+           'ASHRAE 169-2013-1A',
+           'ASHRAE 169-2013-2A',
+           'ASHRAE 169-2013-3A',
+           'ASHRAE 169-2013-4A',
+           'ASHRAE 169-2013-5A',
+           'ASHRAE 169-2013-6A'
         if pct_oa < 0.1
           erv_cfm = nil
         elsif pct_oa >= 0.1 && pct_oa < 0.2
@@ -619,7 +702,14 @@ class NRELZNEReady2017 < ASHRAE901
         elsif pct_oa >= 0.8
           erv_cfm = 120
         end
-      when 'ASHRAE 169-2006-7A', 'ASHRAE 169-2006-7B', 'ASHRAE 169-2006-8A', 'ASHRAE 169-2006-8B'
+      when 'ASHRAE 169-2006-7A',
+           'ASHRAE 169-2006-7B',
+           'ASHRAE 169-2006-8A',
+           'ASHRAE 169-2006-8B',
+           'ASHRAE 169-2013-7A',
+           'ASHRAE 169-2013-7B',
+           'ASHRAE 169-2013-8A',
+           'ASHRAE 169-2013-8B'
         if pct_oa < 0.1
           erv_cfm = nil
         elsif pct_oa >= 0.1 && pct_oa < 0.2
@@ -643,9 +733,19 @@ class NRELZNEReady2017 < ASHRAE901
     else
       # Table 6.5.6.1-2, above 8000 hrs
       case climate_zone
-      when 'ASHRAE 169-2006-3C'
+      when 'ASHRAE 169-2006-3C',
+           'ASHRAE 169-2013-3C'
         erv_cfm = nil
-      when 'ASHRAE 169-2006-1B', 'ASHRAE 169-2006-2B', 'ASHRAE 169-2006-3B', 'ASHRAE 169-2006-4C', 'ASHRAE 169-2006-5C'
+      when 'ASHRAE 169-2006-1B',
+           'ASHRAE 169-2006-2B',
+           'ASHRAE 169-2006-3B',
+           'ASHRAE 169-2006-4C',
+           'ASHRAE 169-2006-5C',
+           'ASHRAE 169-2013-1B',
+           'ASHRAE 169-2013-2B',
+           'ASHRAE 169-2013-3B',
+           'ASHRAE 169-2013-4C',
+           'ASHRAE 169-2013-5C'
         if pct_oa < 0.1
           erv_cfm = nil
         elsif pct_oa >= 0.1 && pct_oa < 0.2
@@ -665,7 +765,16 @@ class NRELZNEReady2017 < ASHRAE901
         elsif pct_oa >= 0.8
           erv_cfm = 120
         end
-      when 'ASHRAE 169-2006-1A', 'ASHRAE 169-2006-2A', 'ASHRAE 169-2006-3A', 'ASHRAE 169-2006-4B', 'ASHRAE 169-2006-5B'
+      when 'ASHRAE 169-2006-1A',
+           'ASHRAE 169-2006-2A',
+           'ASHRAE 169-2006-3A',
+           'ASHRAE 169-2006-4B',
+           'ASHRAE 169-2006-5B',
+           'ASHRAE 169-2013-1A',
+           'ASHRAE 169-2013-2A',
+           'ASHRAE 169-2013-3A',
+           'ASHRAE 169-2013-4B',
+           'ASHRAE 169-2013-5B'
         if pct_oa < 0.1
           erv_cfm = nil
         elsif pct_oa >= 0.1 && pct_oa < 0.2
@@ -685,7 +794,22 @@ class NRELZNEReady2017 < ASHRAE901
         elsif pct_oa >= 0.8
           erv_cfm = 80
         end
-      when 'ASHRAE 169-2006-4A', 'ASHRAE 169-2006-5A', 'ASHRAE 169-2006-6A', 'ASHRAE 169-2006-6B', 'ASHRAE 169-2006-7A', 'ASHRAE 169-2006-7B', 'ASHRAE 169-2006-8A', 'ASHRAE 169-2006-8B'
+      when 'ASHRAE 169-2006-4A',
+           'ASHRAE 169-2006-5A',
+           'ASHRAE 169-2006-6A',
+           'ASHRAE 169-2006-6B',
+           'ASHRAE 169-2006-7A',
+           'ASHRAE 169-2006-7B',
+           'ASHRAE 169-2006-8A',
+           'ASHRAE 169-2006-8B',
+           'ASHRAE 169-2013-4A',
+           'ASHRAE 169-2013-5A',
+           'ASHRAE 169-2013-6A',
+           'ASHRAE 169-2013-6B',
+           'ASHRAE 169-2013-7A',
+           'ASHRAE 169-2013-7B',
+           'ASHRAE 169-2013-8A',
+           'ASHRAE 169-2013-8B'
         if pct_oa < 0.1
           erv_cfm = nil
         elsif pct_oa >= 0.1 && pct_oa < 0.2
