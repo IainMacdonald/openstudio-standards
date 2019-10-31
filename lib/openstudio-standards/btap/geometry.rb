@@ -1633,8 +1633,6 @@ module BTAP
             north_core_polygon << perimeter_upper_nw_point
             north_core_polygon << perimeter_upper_ne_point
             north_core_polygon << perimeter_upper_se_point
-            #north_core_polygon << perimeter_lower_nw_point
-            #north_core_polygon << perimeter_lower_ne_point
             north_core_space = OpenStudio::Model::Space::fromFloorPrint(north_core_polygon, floor_to_floor_height, model)
             north_core_space = north_core_space.get
             m[0, 3] = perimeter_upper_sw_point.x
