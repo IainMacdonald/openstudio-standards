@@ -30,7 +30,11 @@ class NECB_Default_SpaceTypes_Tests < Minitest::Test
     test_cases = {}
 
     # Define references (per vintage in this case).
-    test_cases[:NECB2011] = { Reference: "NECB 2011 p3 Table 5.2.12.1" }
+     # Define references (per vintage in this case).
+    test_cases[:NECB2011] = { :Reference => "NECB 2011 p3 Table 4.2.1.6., Table A-8.4.3.3.(1)B"}
+    test_cases[:NECB2015] = { :Reference => "NECB 2015 p3 Table 4.2.1.6., Table A-8.4.3.2.(2)-B"}
+    test_cases[:NECB2017] = { :Reference => "NECB 2017 p3 Table 4.2.1.6., Table A-8.4.3.2.(2)-B"}
+    test_cases[:NECB2020] = { :Reference => "NECB 2020 p3 Table 4.2.1.6., Table A-8.4.3.2.(2)-B"}
 
     # Results and name are tbd here as they will be calculated in the test.
     test_cases_hash = { vintage: @AllTemplates,
